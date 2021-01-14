@@ -3,15 +3,15 @@
 This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on Openshift webinar](https://leap.jfrog.com/WN-2021-01-Pizza-Delivery-Devops-Pipelines-on-Openshift-US-LP.html). This webinar is jointly presented by Red Hat and JFrog. It contains a npm application, dockerfile and openshift pipeline/tekton pipelines, resources and tasks to build and deploy the application.
 
 ## DevOps Pipeline Workflow
-![workflow](https://drive.google.com/uc?export=view&id=1MGqX0B0Kr_DQ-wjOYXaVJDe6Q0DZE6a8)
+![openshift-jfrog-pipeline](https://user-images.githubusercontent.com/6440106/104613371-05c8bc00-563c-11eb-8589-20a0b488b480.png)
 
 ## High-level Architecture
-![arch](https://drive.google.com/uc?export=view&id=1n_LFBkaVivMIknK14PIWKNf9_ohzlcuy)
+![openshift-jfrog-arch](https://user-images.githubusercontent.com/6440106/104613433-137e4180-563c-11eb-8714-2ff424785c8e.png)
 
 
 # Pizza App
 
-![pizza app](https://drive.google.com/uc?export=view&id=1hYRFPvocVR0uj3v2NmdtubEFNaSNASmJ)
+![redhat-jfrog-pizza](https://user-images.githubusercontent.com/6440106/104613274-efbafb80-563b-11eb-972b-5b5db7ec2b75.png)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.7.
 
