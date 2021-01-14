@@ -1,6 +1,6 @@
 # Pizza Delivery VS. DevOps Pipeline on Openshift
 
-This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on Openshift webinar](https://leap.jfrog.com/WN-2021-01-Pizza-Delivery-Devops-Pipelines-on-Openshift-US-LP.html). This webinar is jointly presented by Red Hat and JFrog. It contains a npm application, dockerfile and openshift pipeline/tekton pipelines, resources and tasks to build and deploy the application.
+This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on Openshift webinar](https://leap.jfrog.com/WN-2021-01-Pizza-Delivery-Devops-Pipelines-on-Openshift-US-LP.html). This webinar is jointly presented by Red Hat and JFrog and discusses how to develop a CI/CD pipeline with [OpenShift](https://www.openshift.com/) and [the JFrog Platform](https://jfrog.com/platform/). It contains a npm application, dockerfile and openshift pipeline/tekton pipelines, resources and tasks to build and deploy the application.
 
 ## DevOps Pipeline Workflow
 ![openshift-jfrog-pipeline](https://user-images.githubusercontent.com/6440106/104613371-05c8bc00-563c-11eb-8589-20a0b488b480.png)
@@ -8,6 +8,11 @@ This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on
 ## High-level Architecture
 ![openshift-jfrog-arch](https://user-images.githubusercontent.com/6440106/104613433-137e4180-563c-11eb-8714-2ff424785c8e.png)
 
+# DevOps Pipeline
+
+The build and deployment of our DevOps pipelines is achieved through the use of [OpenShift Pipelines](https://www.openshift.com/learn/topics/pipelines) for CI/CD and the JFrog CLI. The JFrog CLI is used to build and upload the artifacts and the build information. Openshift Pipelines is used to automate this process. The pipeline and the tasks that use the JFrog CLI are defined in [pipeline.yaml](./pipeline.yaml). 
+
+![pipeline](https://user-images.githubusercontent.com/6440106/104619542-d79aaa80-5642-11eb-8e18-eb1ffe03e109.png)
 
 # Pizza App
 
