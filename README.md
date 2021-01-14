@@ -11,13 +11,15 @@ This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on
 
 # Pizza App
 
+![pizza app](https://drive.google.com/uc?export=view&id=1hYRFPvocVR0uj3v2NmdtubEFNaSNASmJ)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.7.
 
 ## Build and Run Docker Image Locally
 
 ```
-$ docker build -t workshop-app . 
-$ docker run -p 443:443 -p 80:80 docker.io/library/workshop-app
+$ docker build -t pizza-app . 
+$ docker run -p 443:443 -p 80:80 docker.io/library/pizza-app
 ```
 
 ## Development server
