@@ -1,0 +1,203 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: rt-config-task
+spec:
+  workspaces:
+    - name: build-workspace
+  params:
+    - name: server
+      type: string
+    - name: username
+      type: string
+    - name: apikey
+      type: string
+    - name: repo
+      type: string
+    - name: workdir
+      type: string
+  steps:
+    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+      workingDir: "$(params.workdir)"
+      command: ["rt"]
+      args: ["-c","$(params.repo)","$(params.repo)","--url=https://$(params.server)/artifactory","--user=$(params.username)","--apikey=$(params.apikey)"]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: npm-config-task
+spec:
+  workspaces:
+    - name: build-workspace
+  params:
+    - name: repo
+      type: string
+    - name: workdir
+      type: string
+  steps:
+    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+      workingDir: "$(params.workdir)"
+      command: ["rt"]
+      args: ["npmc","--repo-resolve=npm", "--repo-deploy=npm","--server-id-resolve=$(params.repo)","--server-id-deploy=$(params.repo)"]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: npm-install-task
+spec:
+  workspaces:
+    - name: build-workspace
+  params:
+    - name: workdir
+      type: string
+  resources:
+    inputs:
+      - name: source
+        type: git
+  steps:
+    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+      workingDir: "$(params.workdir)"
+      command: ["rt"]
+      args: ["npm-install","--build-name=npm_build", "--build-number=1"]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: npm-publish-task
+spec:
+  workspaces:
+    - name: build-workspace
+  params:
+    - name: workdir
+      type: string
+  resources:
+    inputs:
+      - name: source
+        type: git
+  steps:
+    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+      workingDir: "$(params.workdir)"
+      command: ["rt"]
+      args: ["npm-publish","--build-name=npm_build", "--build-number=1"]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-publish-task
+spec:
+  workspaces:
+    - name: build-workspace
+  params:
+    - name: workdir
+      type: string
+  steps:
+    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+      workingDir: "$(params.workdir)"
+      command: ["rt"]
+      args: ["build-publish","--build-name=npm_build", "--build-number=1"]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: npm-docker-rt-pipeline
+spec:
+  resources:
+    - name: pipeline-git
+      type: git
+  params:
+    - name: server
+      type: string
+    - name: username
+      type: string
+    - name: apikey
+      type: string
+    - name: repo
+      type: string
+    - name: workdir
+      type: string
+  tasks:
+    - name: rt-config
+      taskRef:
+        name: rt-config
+      params:
+        - name: server
+          value: "$(params.server)"
+        - name: username
+          value: "$(params.username)"
+        - name: apikey
+          value: "$(params.apikey)"
+        - name: repo
+          value: "$(params.repo)"
+        - name: workdir
+          value: "$(params.workdir)"
+      resources:
+        inputs:
+          - name: pipeline-git
+            resource: pipeline-git
+        outputs:
+          - name: pipeline-git
+            resource: pipeline-git
+    - name: npm-config
+      taskRef:
+        name: npm-config-task
+      params:
+        - name: repo
+          value: "$(params.repo)"
+        - name: workdir
+          value: "$(params.workdir)"
+    - name: npm-install
+      taskRef:
+        name: npm-install-task
+      params:
+        - name: workdir
+          value: "$(params.workdir)"
+      resources:
+        inputs:
+          - name: source
+            resource: pipeline-git
+    - name: npm-publish
+      taskRef:
+        name: npm-publish-task
+      params:
+        - name: workdir
+          value: "$(params.workdir)"
+    - name: build-publish
+      taskRef:
+        name: build-publish-task
+      params:
+        - name: workdir
+          value: "$(params.workdir)"
+      resources:
+        inputs:
+          - name: source
+            resource: pipeline-git
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-pizza-app-run
+spec:
+  pipelineRef:
+    name: npm-docker-rt-pipeline
+  serviceAccountName: 'default'
+  params:
+    - name: server
+      value: "https://jfrog-https-default.apps.openshift-demo.openshiftk8s.com/"
+    - name: username
+      value: "admin"
+    - name: apikey
+      value: "AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK"
+    - name: repo
+      value: "npm"
+    - name: workdir
+      value: "pizza-app"
+  resources:
+    - name: pipeline-git
+      resourceSpec:
+        type: git
+        params:
+          - name: revision
+            value: master
+          - name: url
+            value: https://github.com/jefferyfry/redhat-jfrog-build-pizza
