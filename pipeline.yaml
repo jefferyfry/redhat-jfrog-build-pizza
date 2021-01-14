@@ -92,13 +92,10 @@ spec:
       type: string
     - name: repo
       type: string
-    - name: workdir
-      type: string
   steps:
     - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
-      workingDir: "$(params.workdir)"
-      command: ["rt"]
-      args: ["-c","$(params.repo)","$(params.repo)","--url=https://$(params.server)/artifactory","--user=$(params.username)","--apikey=$(params.apikey)"]
+      command: ["jfrog"]
+      args: ["rt","config","--url=https://$(params.server)/artifactory","--insecure-tls=true","--user=$(params.username)","--apikey=$(params.apikey)"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -110,13 +107,10 @@ spec:
   params:
     - name: repo
       type: string
-    - name: workdir
-      type: string
   steps:
     - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
-      workingDir: "$(params.workdir)"
-      command: ["rt"]
-      args: ["npmc","--repo-resolve=npm", "--repo-deploy=npm","--server-id-resolve=$(params.repo)","--server-id-deploy=$(params.repo)"]
+      command: ["jfrog"]
+      args: ["rt","npmc","--repo-resolve=npm", "--repo-deploy=npm","--server-id-resolve=$(params.repo)","--server-id-deploy=$(params.repo)"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -125,14 +119,10 @@ metadata:
 spec:
   workspaces:
     - name: build-workspace
-  params:
-    - name: workdir
-      type: string
   steps:
     - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
-      workingDir: "$(params.workdir)"
-      command: ["rt"]
-      args: ["npm-install","--build-name=npm_build", "--build-number=1"]
+      command: ["jfrog"]
+      args: ["rt","npm-install","--build-name=npm_build", "--build-number=1"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -141,14 +131,10 @@ metadata:
 spec:
   workspaces:
     - name: build-workspace
-  params:
-    - name: workdir
-      type: string
   steps:
     - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
-      workingDir: "$(params.workdir)"
-      command: ["rt"]
-      args: ["npm-publish","--build-name=npm_build", "--build-number=1"]
+      command: ["jfrog"]
+      args: ["rt","npm-publish","--build-name=npm_build", "--build-number=1"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -157,14 +143,10 @@ metadata:
 spec:
   workspaces:
     - name: build-workspace
-  params:
-    - name: workdir
-      type: string
   steps:
     - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
-      workingDir: "$(params.workdir)"
-      command: ["rt"]
-      args: ["build-publish","--build-name=npm_build", "--build-number=1"]
+      command: ["jfrog"]
+      args: ["rt","build-publish","--build-name=npm_build", "--build-number=1"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -208,8 +190,6 @@ spec:
           value: "$(params.apikey)"
         - name: repo
           value: "$(params.repo)"
-        - name: workdir
-          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
@@ -221,8 +201,6 @@ spec:
       params:
         - name: repo
           value: "$(params.repo)"
-        - name: workdir
-          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
@@ -231,9 +209,6 @@ spec:
         name: npm-install-task
       runAfter:
         - npm-config
-      params:
-        - name: workdir
-          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
@@ -242,9 +217,6 @@ spec:
         name: npm-publish-task
       runAfter:
         - npm-install
-      params:
-        - name: workdir
-          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
@@ -253,9 +225,6 @@ spec:
         name: build-publish-task
       runAfter:
         - npm-publish
-      params:
-        - name: workdir
-          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
@@ -270,7 +239,7 @@ spec:
   serviceAccountName: 'default'
   params:
     - name: server
-      value: "https://jfrog-https-default.apps.openshift-demo.openshiftk8s.com/"
+      value: "jfrog-https-default.apps.openshift-demo.openshiftk8s.com"
     - name: username
       value: "admin"
     - name: apikey
