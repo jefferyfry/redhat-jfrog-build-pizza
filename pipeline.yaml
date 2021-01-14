@@ -180,12 +180,10 @@ spec:
       type: string
     - name: repo
       type: string
-    - name: workdir
-      type: string
   workspaces:
     - name: git-source
   tasks:
-    - name: fetch-from-git
+    - name: git-clone
       taskRef:
         name: git-clone
       params:
@@ -199,6 +197,8 @@ spec:
     - name: rt-config
       taskRef:
         name: rt-config-task
+      runAfter:
+        - git-clone
       params:
         - name: server
           value: "$(params.server)"
@@ -209,45 +209,53 @@ spec:
         - name: repo
           value: "$(params.repo)"
         - name: workdir
-          value: "$(params.workdir)"
+          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
     - name: npm-config
       taskRef:
         name: npm-config-task
+      runAfter:
+        - rt-config
       params:
         - name: repo
           value: "$(params.repo)"
         - name: workdir
-          value: "$(params.workdir)"
+          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
     - name: npm-install
       taskRef:
         name: npm-install-task
+      runAfter:
+        - npm-config
       params:
         - name: workdir
-          value: "$(params.workdir)"
+          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
     - name: npm-publish
       taskRef:
         name: npm-publish-task
+      runAfter:
+        - npm-install
       params:
         - name: workdir
-          value: "$(params.workdir)"
+          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
     - name: build-publish
       taskRef:
         name: build-publish-task
+      runAfter:
+        - npm-publish
       params:
         - name: workdir
-          value: "$(params.workdir)"
+          value: "$(workspaces.source.path)/app"
       workspaces:
         - name: build-workspace
           workspace: git-source
@@ -269,8 +277,6 @@ spec:
       value: "AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK"
     - name: repo
       value: "npm"
-    - name: workdir
-      value: "pizza-app"
   workspaces:
     - name: git-source
       volumeClaimTemplate:
