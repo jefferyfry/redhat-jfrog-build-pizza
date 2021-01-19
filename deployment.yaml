@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: npm-app
+  name: pizzademo-app
 spec:
   selector:
     matchLabels:
-      app: npm-app
+      app: pizzademo-app
   template:
     metadata:
       labels:
-        app: npm-app
+        app: pizzademo-app
     spec:
       containers:
-        - name: npm-app
-          image: imageName # IMPORTANT: Update!
+        - name: pizzademo-app
+          image: imageName
           imagePullPolicy: Always
           ports:
             - containerPort: 443
@@ -27,8 +27,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: npm-app
-  name: npm-app
+    app: pizzademo-app
+  name: pizzademo-app
 spec:
   type: LoadBalancer
   ports:
@@ -39,4 +39,4 @@ spec:
       port: 80
       protocol: TCP
   selector:
-    app: npm-app
+    app: pizzademo-app
