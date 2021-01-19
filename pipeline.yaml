@@ -86,7 +86,7 @@ spec:
   workspaces:
     - name: output
   params:
-    - name: server
+    - name: rturl
       type: string
     - name: username
       type: string
@@ -95,11 +95,6 @@ spec:
     - name: serverid
       type: string
   steps:
-    - name: "check-params"
-      image: bash:latest
-      script: |
-        #!/usr/bin/env bash
-        echo -n $(inputs.params.server) $(inputs.params.username) $(inputs.params.serverid)
     - name: "jfrog-rt-config"
       image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
       workingDir: "$(workspaces.output.path)"
@@ -109,7 +104,7 @@ spec:
         - name: JFROG_CLI_TEMP_DIR
           value: "$(workspaces.output.path)/tmp"
       command: ["jfrog"]
-      args: ["rt","config","$(inputs.params.serverid)","--url=http://$(inputs.params.server)/artifactory","--user=$(inputs.params.username)","--apikey=$(inputs.params.apikey)"]
+      args: ["rt","config","$(inputs.params.serverid)","--url=$(inputs.params.rturl)","--user=$(inputs.params.username)","--apikey=$(inputs.params.apikey)"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -152,7 +147,7 @@ spec:
         - name: JFROG_CLI_TEMP_DIR
           value: "$(workspaces.output.path)/tmp"
       command: ["jfrog"]
-      args: ["rt","npm-install","--build-name=npm_build", "--build-number=1","--insecure-tls=true"]
+      args: ["rt","npm-install","--build-name=npm_build", "--build-number=1"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -237,6 +232,8 @@ metadata:
 spec:
   description: "This is pipeline to build the pizzademo NPM package, build the Docker image and deploy."
   params:
+    - name: rturl
+      type: string
     - name: server
       type: string
     - name: username
@@ -267,8 +264,8 @@ spec:
       runAfter:
         - git-clone
       params:
-        - name: server
-          value: "$(params.server)"
+        - name: rturl
+          value: "$(params.rturl)"
         - name: username
           value: "$(params.username)"
         - name: apikey
@@ -358,14 +355,16 @@ spec:
     name: npm-docker-rt-pipeline
   serviceAccountName: 'default'
   params:
+    - name: rturl
+      value: http://jfrog-http-default.apps.openshift-demo.openshiftk8s.com/artifactory
     - name: server
-      value: "jfrog-http-default.apps.openshift-demo.openshiftk8s.com"
+      value: jfrog-https-default.apps.openshift-demo.openshiftk8s.com
     - name: username
-      value: "admin"
+      value: admin
     - name: apikey
-      value: "AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK"
+      value: AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK
     - name: serverid
-      value: "openshift-rt-xray-server"
+      value: openshift-rt-xray-server
     - name: image
       value: "jfrog-https-default.apps.openshift-demo.openshiftk8s.com/docker/pizzademo-docker-app"
   workspaces:
