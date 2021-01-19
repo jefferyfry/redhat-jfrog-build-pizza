@@ -3,6 +3,7 @@ kind: Task
 metadata:
   name: git-clone
 spec:
+  description: "GIT clone a repository."
   workspaces:
     - name: output
       description: The git repo will be cloned onto the volume backing this workspace
@@ -81,8 +82,9 @@ kind: Task
 metadata:
   name: rt-config-task
 spec:
+  description: "Configure the JFrog CLI for the Artifactory server."
   workspaces:
-    - name: build-workspace
+    - name: output
   params:
     - name: server
       type: string
@@ -90,69 +92,151 @@ spec:
       type: string
     - name: apikey
       type: string
-    - name: repo
+    - name: serverid
       type: string
   steps:
-    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+    - name: "check-params"
+      image: bash:latest
+      script: |
+        #!/usr/bin/env bash
+        echo -n $(inputs.params.server) $(inputs.params.username) $(inputs.params.serverid)
+    - name: "jfrog-rt-config"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
       command: ["jfrog"]
-      args: ["rt","config","--url=https://$(params.server)/artifactory","--insecure-tls=true","--user=$(params.username)","--apikey=$(params.apikey)"]
+      args: ["rt","config","$(inputs.params.serverid)","--url=http://$(inputs.params.server)/artifactory","--user=$(inputs.params.username)","--apikey=$(inputs.params.apikey)"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: npm-config-task
 spec:
+  description: "Configure the JFrog CLI for the NPM repositories."
   workspaces:
-    - name: build-workspace
+    - name: output
   params:
-    - name: repo
+    - name: serverid
       type: string
   steps:
-    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+    - name: "check-params"
+      image: bash:latest
+      script: |
+        #!/usr/bin/env bash
+        echo -n $(inputs.params.serverid)
+    - name: "jfrog-rt-npmc"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
       command: ["jfrog"]
-      args: ["rt","npmc","--repo-resolve=npm", "--repo-deploy=npm","--server-id-resolve=$(params.repo)","--server-id-deploy=$(params.repo)"]
+      args: ["rt","npmc","--repo-resolve=npm", "--repo-deploy=npm","--server-id-resolve=$(inputs.params.serverid)","--server-id-deploy=$(inputs.params.serverid)"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: npm-install-task
 spec:
+  description: "Use the JFrog CLI to run NPM install and collect build-info."
   workspaces:
-    - name: build-workspace
+    - name: output
   steps:
-    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+    - name: "jfrog-rt-npm-install"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
       command: ["jfrog"]
-      args: ["rt","npm-install","--build-name=npm_build", "--build-number=1"]
+      args: ["rt","npm-install","--build-name=npm_build", "--build-number=1","--insecure-tls=true"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: npm-publish-task
 spec:
+  description: "Use the JFrog CLI to run NPM publish and collect build-info."
   workspaces:
-    - name: build-workspace
+    - name: output
   steps:
-    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+    - name: "jfrog-rt-npm-publish"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
       command: ["jfrog"]
       args: ["rt","npm-publish","--build-name=npm_build", "--build-number=1"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
+  name: docker-build-task
+spec:
+  description: "Build a docker image."
+  workspaces:
+    - name: output
+  params:
+    - name: serverid
+      type: string
+  steps:
+    - name: "docker-build"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
+      command: ["docker"]
+      args: ["build","-t","$(inputs.params.serverid)/docker-demo/pizzademo-docker-app", "."]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: docker-push-task
+spec:
+  description: "Use the JFrog CLI to push the docker image."
+  workspaces:
+    - name: output
+  params:
+    - name: serverid
+      type: string
+  steps:
+    - name: "jfrog-rt-docker-push"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
+      command: ["jfrog"]
+      args: ["rt","docker-push","$(inputs.params.serverid)/docker-demo/pizzademo-docker-app","--build-name=npm_build", "--build-number=1"]
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
   name: build-publish-task
 spec:
+  description: "Use the JFrog CLI to publish the build-info."
   workspaces:
-    - name: build-workspace
+    - name: output
   steps:
-    - image: docker.bintray.io/jfrog/jfrog-cli-go:latest
+    - name: "jfrog-rt-build-publish"
+      image: docker.io/jefferyfry/jfrog-cli-npm-docker:latest
+      workingDir: "$(workspaces.output.path)"
+      env:
+        - name: JFROG_CLI_HOME_DIR
+          value: "$(workspaces.output.path)"
       command: ["jfrog"]
-      args: ["rt","build-publish","--build-name=npm_build", "--build-number=1"]
+      args: ["rt","build-publish","npm_build", "1"]
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: npm-docker-rt-pipeline
 spec:
+  description: "This is pipeline to build the pizzademo NPM package, build the Docker image and deploy."
   params:
     - name: server
       type: string
@@ -160,10 +244,10 @@ spec:
       type: string
     - name: apikey
       type: string
-    - name: repo
+    - name: serverid
       type: string
   workspaces:
-    - name: git-source
+    - name: shared-workspace
   tasks:
     - name: git-clone
       taskRef:
@@ -175,7 +259,7 @@ spec:
           value: master
       workspaces:
         - name: output
-          workspace: git-source
+          workspace: shared-workspace
     - name: rt-config
       taskRef:
         name: rt-config-task
@@ -188,46 +272,68 @@ spec:
           value: "$(params.username)"
         - name: apikey
           value: "$(params.apikey)"
-        - name: repo
-          value: "$(params.repo)"
+        - name: serverid
+          value: "$(params.serverid)"
       workspaces:
-        - name: build-workspace
-          workspace: git-source
+        - name: output
+          workspace: shared-workspace
     - name: npm-config
       taskRef:
         name: npm-config-task
       runAfter:
         - rt-config
       params:
-        - name: repo
-          value: "$(params.repo)"
+        - name: serverid
+          value: "$(params.serverid)"
       workspaces:
-        - name: build-workspace
-          workspace: git-source
+        - name: output
+          workspace: shared-workspace
     - name: npm-install
       taskRef:
         name: npm-install-task
       runAfter:
         - npm-config
       workspaces:
-        - name: build-workspace
-          workspace: git-source
+        - name: output
+          workspace: shared-workspace
     - name: npm-publish
       taskRef:
         name: npm-publish-task
       runAfter:
         - npm-install
       workspaces:
-        - name: build-workspace
-          workspace: git-source
+        - name: output
+          workspace: shared-workspace
+    - name: docker-build
+        taskRef:
+          name: docker-build-task
+        runAfter:
+          - npm-publish
+        params:
+          - name: serverid
+            value: "$(params.serverid)"
+        workspaces:
+          - name: output
+            workspace: shared-workspace
+    - name: docker-push
+        taskRef:
+          name: docker-push-task
+        runAfter:
+          - docker-build
+        params:
+          - name: serverid
+            value: "$(params.serverid)"
+        workspaces:
+          - name: output
+            workspace: shared-workspace
     - name: build-publish
       taskRef:
         name: build-publish-task
       runAfter:
         - npm-publish
       workspaces:
-        - name: build-workspace
-          workspace: git-source
+        - name: output
+          workspace: shared-workspace
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -239,15 +345,15 @@ spec:
   serviceAccountName: 'default'
   params:
     - name: server
-      value: "jfrog-https-default.apps.openshift-demo.openshiftk8s.com"
+      value: "jfrog-http-default.apps.openshift-demo.openshiftk8s.com"
     - name: username
       value: "admin"
     - name: apikey
       value: "AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK"
-    - name: repo
-      value: "npm"
+    - name: serverid
+      value: "openshift-rt-xray-server"
   workspaces:
-    - name: git-source
+    - name: shared-workspace
       volumeClaimTemplate:
         spec:
           accessModes:

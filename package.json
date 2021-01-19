@@ -1,5 +1,5 @@
 {
-  "name": "workshop-app",
+  "name": "pizzademo-npm-app",
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
