@@ -367,7 +367,7 @@ spec:
     - name: serverid
       value: "openshift-rt-xray-server"
     - name: image
-      value: "jfrog-http-default.apps.openshift-demo.openshiftk8s.com/docker/pizzademo-docker-app"
+      value: "jfrog-https-default.apps.openshift-demo.openshiftk8s.com/docker/pizzademo-docker-app"
   workspaces:
     - name: shared-workspace
       volumeClaimTemplate:
