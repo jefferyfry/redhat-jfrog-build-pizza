@@ -28,13 +28,13 @@ kubectl apply -f pizzademo-clusterrolebinding.yaml -n pizzademo
 kubectl apply -f pipeline.yaml -n pizzademo
 ```
 
-3. Then create the PipeRun resource to execute the pipeline. You can use the pipeline-run.yaml as an example and apply it.
+3. Then create the PipelineRun resource to execute the pipeline. You can use the pipeline-run.yaml as an example and apply it.
 
 ```
 kubectl apply -f pipeline-run.yaml -n pizzademo
 ```
 
-or you can use the OpenShift Pipeline UI to create the Pipeline resource via Pipeline > Start.
+or you can use the OpenShift Pipeline UI to create the PipelineRun resource via Pipeline > Start.
 
 ![Pipeline Run](https://user-images.githubusercontent.com/6440106/105402807-b9055800-5bdc-11eb-93b1-36d77d61b302.png)
 
