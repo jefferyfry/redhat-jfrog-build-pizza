@@ -345,35 +345,5 @@ spec:
       workspaces:
         - name: output
           workspace: shared-workspace
----
-apiVersion: tekton.dev/v1beta1
-kind: PipelineRun
-metadata:
-  name: build-pizza-app-run
-spec:
-  pipelineRef:
-    name: npm-docker-rt-pipeline
-  serviceAccountName: 'default'
-  params:
-    - name: rturl
-      value: http://jfrog-http-default.apps.openshift-demo.openshiftk8s.com/artifactory
-    - name: server
-      value: jfrog-https-default.apps.openshift-demo.openshiftk8s.com
-    - name: username
-      value: admin
-    - name: apikey
-      value: AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK
-    - name: serverid
-      value: openshift-rt-xray-server
-    - name: image
-      value: "jfrog-https-default.apps.openshift-demo.openshiftk8s.com/docker/pizzademo-docker-app"
-  workspaces:
-    - name: shared-workspace
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 1Gi
+
 
