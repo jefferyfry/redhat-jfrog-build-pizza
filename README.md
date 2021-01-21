@@ -16,13 +16,19 @@ The build and deployment of our DevOps pipelines is achieved through the use of 
 
 # Applying and Executing the Pipeline
 
-1. Apply the pipeline YAML with the following command to create the Task and Pipeline resources.
+1. Apply the [pizzademo-clusterrolebinding](pizzademo-clusterrolebinding.yaml) to allow OpenShift Pipelines to use the default ServiceAccount to create K8s resources.
+
+```
+kubectl apply -f pizzademo-clusterrolebinding.yaml -n pizzademo
+```
+
+2. Apply the pipeline YAML with the following command to create the Task and Pipeline resources.
 
 ```
 kubectl apply -f pipeline.yaml -n pizzademo
 ```
 
-2. Then create the PipeRun resource to execute the pipeline. You can use the pipeline-run.yaml as an example and apply it.
+3. Then create the PipeRun resource to execute the pipeline. You can use the pipeline-run.yaml as an example and apply it.
 
 ```
 kubectl apply -f pipeline-run.yaml -n pizzademo
@@ -32,11 +38,11 @@ or you can use the OpenShift Pipeline UI to create the Pipeline resource via Pip
 
 ![Pipeline Run](https://user-images.githubusercontent.com/6440106/105402807-b9055800-5bdc-11eb-93b1-36d77d61b302.png)
 
-3. The pipeline creates a [K8s Deployment and a Service](./deployment.yaml) to deploy the application. To view the application, create an OpenShift Route under Networking > Routes. Specify the service as seen here.
+4. The pipeline creates a [K8s Deployment and a Service](./deployment.yaml) to deploy the application. To view the application, create an OpenShift Route under Networking > Routes. Specify the service as seen here.
 
 ![Pipeline Route](https://user-images.githubusercontent.com/6440106/105403178-3fba3500-5bdd-11eb-95a7-2429578f1fd8.png)
 
-4. Click on the URL to view your application!
+5. Click on the URL to view your application!
 
 # Pizza App
 
