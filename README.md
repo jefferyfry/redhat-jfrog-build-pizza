@@ -14,6 +14,30 @@ The build and deployment of our DevOps pipelines is achieved through the use of 
 
 ![pipeline](https://user-images.githubusercontent.com/6440106/104619542-d79aaa80-5642-11eb-8e18-eb1ffe03e109.png)
 
+# Applying and Executing the Pipeline
+
+1. Apply the pipeline YAML with the following command to create the Task and Pipeline resources.
+
+```
+kubectl apply -f pipeline.yaml -n pizzademo
+```
+
+2. Then create the PipeRun resource to execute the pipeline. You can use the pipeline-run.yaml as an example and apply it.
+
+```
+kubectl apply -f pipeline-run.yaml -n pizzademo
+```
+
+or you can use the OpenShift Pipeline UI to create the Pipeline resource via Pipeline > Start.
+
+![Pipeline Run](https://user-images.githubusercontent.com/6440106/105402807-b9055800-5bdc-11eb-93b1-36d77d61b302.png)
+
+3. The pipeline creates a [K8s Deployment and a Service](./deployment.yaml) to deploy the application. To view the application, create an OpenShift Route under Networking > Routes. Specify the service as seen here.
+
+![Pipeline Route](https://user-images.githubusercontent.com/6440106/105403178-3fba3500-5bdd-11eb-95a7-2429578f1fd8.png)
+
+4. Click on the URL to view your application!
+
 # Pizza App
 
 ![redhat-jfrog-pizza](https://user-images.githubusercontent.com/6440106/104613274-efbafb80-563b-11eb-972b-5b5db7ec2b75.png)
