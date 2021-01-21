@@ -12,7 +12,7 @@ This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on
 
 The build and deployment of our DevOps pipelines is achieved through the use of [OpenShift Pipelines](https://www.openshift.com/learn/topics/pipelines) for CI/CD and the JFrog CLI. The JFrog CLI is used to build and upload the artifacts and the build information. Openshift Pipelines is used to automate this process. The pipeline and the tasks that use the JFrog CLI are defined in [pipeline.yaml](./pipeline.yaml). 
 
-![pipeline](https://user-images.githubusercontent.com/6440106/104619542-d79aaa80-5642-11eb-8e18-eb1ffe03e109.png)
+![pipeline](https://user-images.githubusercontent.com/6440106/105406537-68dcc480-5be1-11eb-82a3-c0042b63c1bb.png)
 
 # Applying and Executing the Pipeline
 
