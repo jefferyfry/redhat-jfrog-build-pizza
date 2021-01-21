@@ -14,7 +14,7 @@ spec:
     - name: username
       value: admin
     - name: apikey
-      value: AKCp8iggnWctgnWYCBMG9oKSUA2s2rKMT9wURgDK3XAs7h2RnxG8A2Qtn6kQEg251o8fQ5UoK
+      value: xxxx
     - name: serverid
       value: openshift-rt-xray-server
     - name: image
