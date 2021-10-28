@@ -1,5 +1,7 @@
 # Pizza Delivery VS. DevOps Pipeline on Openshift
 
+[![CIS](https://app.soluble.cloud/api/v1/public/badges/4863cfa3-46df-4eda-9eb3-2a8027fbe82c.svg)](https://app.soluble.cloud/repos/details/github.com/jefferyfry/redhat-jfrog-build-pizza)  [![IaC](https://app.soluble.cloud/api/v1/public/badges/b6645f15-a56a-4488-bd96-eb391714c6f2.svg)](https://app.soluble.cloud/repos/details/github.com/jefferyfry/redhat-jfrog-build-pizza)  
+
 This repository contains the code for the [Pizza Delivery VS. DevOps Pipeline on Openshift webinar](https://leap.jfrog.com/WN-2021-01-Pizza-Delivery-Devops-Pipelines-on-Openshift-US-LP.html). This webinar is jointly presented by Red Hat and JFrog and discusses how to develop a CI/CD pipeline with [OpenShift](https://www.openshift.com/) and [the JFrog Platform](https://jfrog.com/platform/). It contains a npm application, dockerfile and openshift pipeline/tekton pipelines, resources and tasks to build and deploy the application.
 
 ## DevOps Pipeline Workflow
